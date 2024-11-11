@@ -1,5 +1,6 @@
-enum JobLevel{
-    TukangKayu, 
+public enum JobLevel
+{
+    TukangKayu,
     Ojek,
     Investor
 }
