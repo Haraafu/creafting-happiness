@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 public class Program
 {
@@ -7,52 +8,62 @@ public class Program
         GameManager gameManager = GameManager.Instance;
         BattleSystem battleSystem = new BattleSystem();
 
-        // Start the game
+        // Regular items
+        List<Item> regularItems = new List<Item>
+        {
+            new Makanan(),
+            new Minuman(),
+            new PS5(),
+            new HangoutParty(),
+            new NontonBioskopBarengBuWati()
+        };
+
+        // Job level items
+        List<JobLevelItem> jobLevelItems = new List<JobLevelItem>
+        {
+            new JobLevelItem(JobLevel.Ojek, 50),
+            new JobLevelItem(JobLevel.Trader, 100)
+        };
+
         gameManager.StartGame();
 
         bool isRunning = true;
 
         while (isRunning)
         {
-            // Display current status
+            if (Character.GetInstance().Wish >= 100)
+            {
+                Console.WriteLine("\nCongratulations! You have reached 100 wish. You win the game!");
+                break;
+            }
+
             gameManager.DisplayStatus();
 
-            // Show available options
             Console.WriteLine("\nChoose an action:");
             Console.WriteLine("1. Work");
             Console.WriteLine("2. Sleep");
-            Console.WriteLine("3. Buy Food (Cost: 10 wish, +5 Happiness)");
-            Console.WriteLine("4. Buy Energy Drink (Cost: 15 wish, +10 Stamina)");
-            Console.WriteLine("5. Buy Level-Up Item (Cost: 25 wish)");
-            Console.WriteLine("6. Exit Game");
+            Console.WriteLine("3. Buy Regular Item");
+            Console.WriteLine("4. Buy Job Upgrade");
+            Console.WriteLine("5. Exit Game");
 
-            // Read the user's choice
             string choice = Console.ReadLine();
             Console.WriteLine();
 
             switch (choice)
             {
                 case "1":
-                    // Perform Work Activity
-                    battleSystem.StartActivity(new Work());
+                    battleSystem.StartActivity(new WorkActivity());
                     break;
                 case "2":
-                    // Perform Sleep Activity
                     battleSystem.StartActivity(new Sleep());
                     break;
                 case "3":
-                    // Buy Food item
-                    Character.GetInstance().BuyItem(new Food());
+                    BuyRegularItemMenu(regularItems);
                     break;
                 case "4":
-                    // Buy Energy Drink item
-                    Character.GetInstance().BuyItem(new EnergyDrink());
+                    BuyJobUpgradeMenu(jobLevelItems);
                     break;
                 case "5":
-                    // Buy Level-Up item
-                    Character.GetInstance().BuyItem(new LevelUpItem());
-                    break;
-                case "6":
                     isRunning = false;
                     Console.WriteLine("Exiting game...");
                     break;
@@ -61,8 +72,71 @@ public class Program
                     break;
             }
 
-            // Add a line break for readability
             Console.WriteLine("\n---\n");
+        }
+    }
+
+    private static void BuyRegularItemMenu(List<Item> regularItems)
+    {
+        Character player = Character.GetInstance();
+
+        Console.WriteLine("Available Regular Items:");
+        for (int i = 0; i < regularItems.Count; i++)
+        {
+            Item item = regularItems[i];
+            Console.WriteLine($"{i + 1}. {item.GetType().Name} - Cost: {item.Cost} wish, Happiness Boost: {item.HappinessBoost}, Stamina Boost: {item.StaminaBoost}");
+        }
+
+        Console.Write("Choose an item to buy (enter the number): ");
+        if (int.TryParse(Console.ReadLine(), out int itemChoice) && itemChoice > 0 && itemChoice <= regularItems.Count)
+        {
+            Item selectedItem = regularItems[itemChoice - 1];
+
+            if (player.CanBuyItem(selectedItem))
+            {
+                player.BuyItem(selectedItem);
+                player.Inventory.UseItem(selectedItem);
+            }
+            else
+            {
+                Console.WriteLine("You don't have enough wish to buy this item.");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Invalid choice. Returning to main menu.");
+        }
+    }
+
+    private static void BuyJobUpgradeMenu(List<JobLevelItem> jobLevelItems)
+    {
+        Character player = Character.GetInstance();
+
+        Console.WriteLine("Available Job Upgrades:");
+        for (int i = 0; i < jobLevelItems.Count; i++)
+        {
+            JobLevelItem item = jobLevelItems[i];
+            Console.WriteLine($"{i + 1}. Unlock {item.GetJobLevel()} - Cost: {item.Cost} wish, Income: {item.GetIncome()} wish");
+        }
+
+        Console.Write("Choose a job upgrade to buy (enter the number): ");
+        if (int.TryParse(Console.ReadLine(), out int itemChoice) && itemChoice > 0 && itemChoice <= jobLevelItems.Count)
+        {
+            JobLevelItem selectedItem = jobLevelItems[itemChoice - 1];
+
+            if (player.CanBuyItem(selectedItem))
+            {
+                player.BuyItem(selectedItem);
+                player.Inventory.UseItem(selectedItem);
+            }
+            else
+            {
+                Console.WriteLine("You don't have enough wish to buy this job upgrade.");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Invalid choice. Returning to main menu.");
         }
     }
 }

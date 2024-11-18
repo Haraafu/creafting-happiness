@@ -1,6 +1,6 @@
 public enum JobLevel
 {
-    TukangKayu,
-    Ojek,
-    Investor
+    TukangKayu, // Default job
+    Ojek,       // Requires Motor
+    Trader      // Requires Bitcoin
 }

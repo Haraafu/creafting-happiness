@@ -1,19 +1,11 @@
-using System;
-
-public class Work : IActivity
+public class WorkActivity : IActivity
 {
     public void Execute()
     {
         Character character = Character.GetInstance();
-        int income = character.JobLevel switch
-        {
-            JobLevel.TukangKayu => 10,
-            JobLevel.Ojek => 15,
-            JobLevel.Investor => 25,
-            _ => 0
-        };
-
+        int income = character.GetIncome();
         int staminaCost = 10;
+
         if (character.Stamina >= staminaCost)
         {
             character.Stamina -= staminaCost;

@@ -1,5 +1,3 @@
-using System;
-
 public class Sleep : IActivity
 {
     public void Execute()
